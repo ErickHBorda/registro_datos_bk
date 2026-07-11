@@ -8,7 +8,6 @@ from app.models.academico import (
     TipoInstitucionEnum,
 )
 
-
 # ── Schema: FormacionAcademica ─────────────────────────────
 
 class FormacionAcademicaBase(BaseModel):

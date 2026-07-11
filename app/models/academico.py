@@ -6,7 +6,10 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from app.database import Base
+from app.models.personal import TipoPersonalEnum
 
+def enum_values(enum_class):
+    return lambda obj: [e.value for e in obj]
 
 # ── MODELO: formacion_academica ────────────────────────────
 
@@ -32,8 +35,8 @@ class FormacionAcademica(Base):
     id                  = Column(Integer, primary_key=True, index=True)
     personal_id         = Column(Integer, ForeignKey("personal.id", ondelete="CASCADE"), nullable=False)
 
-    nivel               = Column(Enum(NivelEducativoEnum, name="nivel_educativo_tipo"), nullable=False)
-    estado              = Column(Enum(EstadoEstudioEnum,  name="estado_estudio_tipo"),  nullable=False)
+    nivel               = Column(Enum(NivelEducativoEnum, name="nivel_educativo_tipo", values_callable=enum_values(NivelEducativoEnum)), nullable=False)
+    estado              = Column(Enum(EstadoEstudioEnum,  name="estado_estudio_tipo", values_callable=enum_values(EstadoEstudioEnum)),  nullable=False)
     centro_estudios     = Column(String(200))
     grado_obtenido      = Column(String(150))
     mencion             = Column(String(150))
@@ -69,14 +72,14 @@ class OtrosEstudios(Base):
     id                  = Column(Integer, primary_key=True, index=True)
     personal_id         = Column(Integer, ForeignKey("personal.id", ondelete="CASCADE"), nullable=False)
 
-    tipo                = Column(Enum(TipoOtroEstudioEnum, name="tipo_otro_estudio_tipo"), nullable=False)
+    tipo                = Column(Enum(TipoOtroEstudioEnum, name="tipo_otro_estudio_tipo", values_callable=enum_values(TipoOtroEstudioEnum)), nullable=False)
     nombre_curso        = Column(String(200), nullable=False)
     centro_estudios     = Column(String(200), nullable=False)
     fecha_inicio        = Column(Date)
     fecha_fin           = Column(Date)
     fecha_emision       = Column(Date)
     duracion_horas      = Column(SmallInteger)
-    tipo_constancia     = Column(Enum(TipoConstanciaEnum, name="tipo_constancia_tipo"))
+    tipo_constancia     = Column(Enum(TipoConstanciaEnum, name="tipo_constancia_tipo", values_callable=enum_values(TipoConstanciaEnum)))
     orden               = Column(SmallInteger, nullable=False, default=1)
 
     creado_en           = Column(DateTime(timezone=True), server_default=func.now())
@@ -98,7 +101,7 @@ class ExperienciaLaboral(Base):
     id                  = Column(Integer, primary_key=True, index=True)
     personal_id         = Column(Integer, ForeignKey("personal.id", ondelete="CASCADE"), nullable=False)
 
-    tipo_institucion    = Column(Enum(TipoInstitucionEnum, name="tipo_institucion_tipo"), nullable=False)
+    tipo_institucion    = Column(Enum(TipoInstitucionEnum, name="tipo_institucion_tipo", values_callable=enum_values(TipoInstitucionEnum)), nullable=False)
     nombre_entidad      = Column(String(200), nullable=False)
     cargo               = Column(String(150), nullable=False)
     documento_acredita  = Column(String(150))
@@ -144,7 +147,7 @@ class OtrasInstituciones(Base):
     personal_id         = Column(Integer, ForeignKey("personal.id", ondelete="CASCADE"), nullable=False, unique=True)
 
     labora_otra_inst    = Column(Boolean, nullable=False, default=False)
-    tipo_personal       = Column(String(20))
+    tipo_personal       = Column(Enum(TipoPersonalEnum, name="tipo_personal_tipo", values_callable=enum_values(TipoPersonalEnum)))
     nombre_entidad      = Column(String(200))
 
     dia_lunes           = Column(Boolean, default=False)

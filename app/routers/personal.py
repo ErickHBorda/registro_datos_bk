@@ -194,7 +194,17 @@ async def crear_personal(
     # ── 12. Recargar con todas las relaciones ──────────────
     trabajador = await obtener_personal_completo(personal_id, db)
 
-    return trabajador
+    return {
+        "personal":            trabajador,
+        "datos_laborales":     trabajador.datos_laborales,
+        "familiares":          trabajador.familiares,
+        "formacion_academica": trabajador.formacion_academica,
+        "otros_estudios":      trabajador.otros_estudios,
+        "experiencia_laboral": trabajador.experiencia_laboral,
+        "experiencia_docente": trabajador.experiencia_docente,
+        "otras_instituciones": trabajador.otras_instituciones,
+        "reconocimientos":     trabajador.reconocimientos,
+    }
 
 
 # ══════════════════════════════════════════════════════════
@@ -219,7 +229,17 @@ async def obtener_personal(
             detail=f"No se encontró un trabajador con ID {personal_id}"
         )
 
-    return trabajador
+    return {
+        "personal":            trabajador,
+        "datos_laborales":     trabajador.datos_laborales,
+        "familiares":          trabajador.familiares,
+        "formacion_academica": trabajador.formacion_academica,
+        "otros_estudios":      trabajador.otros_estudios,
+        "experiencia_laboral": trabajador.experiencia_laboral,
+        "experiencia_docente": trabajador.experiencia_docente,
+        "otras_instituciones": trabajador.otras_instituciones,
+        "reconocimientos":     trabajador.reconocimientos,
+    }
 
 
 # ══════════════════════════════════════════════════════════
@@ -258,7 +278,17 @@ async def obtener_personal_por_dni(
             detail=f"No se encontró un trabajador con DNI {dni}"
         )
 
-    return trabajador
+    return {
+        "personal":            trabajador,
+        "datos_laborales":     trabajador.datos_laborales,
+        "familiares":          trabajador.familiares,
+        "formacion_academica": trabajador.formacion_academica,
+        "otros_estudios":      trabajador.otros_estudios,
+        "experiencia_laboral": trabajador.experiencia_laboral,
+        "experiencia_docente": trabajador.experiencia_docente,
+        "otras_instituciones": trabajador.otras_instituciones,
+        "reconocimientos":     trabajador.reconocimientos,
+    }
 
 
 # ══════════════════════════════════════════════════════════
@@ -406,4 +436,14 @@ async def actualizar_personal(
 
     # ── 7. Recargar y devolver ─────────────────────────────
     trabajador_actualizado = await obtener_personal_completo(personal_id, db)
-    return trabajador_actualizado
+    return {
+        "personal":            trabajador_actualizado,
+        "datos_laborales":     trabajador_actualizado.datos_laborales,
+        "familiares":          trabajador_actualizado.familiares,
+        "formacion_academica": trabajador_actualizado.formacion_academica,
+        "otros_estudios":      trabajador_actualizado.otros_estudios,
+        "experiencia_laboral": trabajador_actualizado.experiencia_laboral,
+        "experiencia_docente": trabajador_actualizado.experiencia_docente,
+        "otras_instituciones": trabajador_actualizado.otras_instituciones,
+        "reconocimientos":     trabajador_actualizado.reconocimientos,
+    }
