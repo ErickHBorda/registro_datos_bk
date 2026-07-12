@@ -54,24 +54,35 @@ class TipoPersonalEnum(str, enum.Enum):
     docente        = "Docente"
     administrativo = "Administrativo"
 
-class Regimen276Enum(str, enum.Enum):
-    ordinario   = "Ordinario"
+class CategoriaRegimenEnum(str, enum.Enum):
+    dl276      = "DL 276"
+    cas        = "CAS"
+    ordinario  = "Ordinario"
+    contratado = "Contratado"
+
+class RegimenDL276Enum(str, enum.Enum):
     profesional = "Profesional"
     tecnico     = "Técnico"
     auxiliar    = "Auxiliar"
-    principal   = "Principal"
-    asociado    = "Asociado"
-    jp          = "JP"
 
-class Regimen1057Enum(str, enum.Enum):
+class RegimenCASEnum(str, enum.Enum):
     cas_permanente  = "CAS Permanente"
     cas_determinado = "CAS Determinado"
     cas_confianza   = "CAS Confianza"
+
+class RegimenOrdinarioEnum(str, enum.Enum):
+    principal = "Principal"
+    asociado  = "Asociado"
+    auxiliar  = "Auxiliar"
+    jp        = "JP"
+
+class RegimenContratadoEnum(str, enum.Enum):
     dc_a1 = "DC-A1"
     dc_a2 = "DC-A2"
     dc_a3 = "DC-A3"
     dc_b1 = "DC-B1"
     dc_b2 = "DC-B2"
+    dc_b3 = "DC-B3"
 
 class NivelRemunerativoEnum(str, enum.Enum):
     a = "A"
@@ -86,6 +97,16 @@ class DedicacionEnum(str, enum.Enum):
     tc    = "TC"
     tp    = "TP"
     horas = "Horas"
+
+class NivelRenacytEnum(str, enum.Enum):
+    i                      = "I"
+    ii                     = "II"
+    iii                    = "III"
+    iv                     = "IV"
+    v                      = "V"
+    vi                     = "VI"
+    vii                    = "VII"
+    investigador_distinguido = "Investigador Distinguido"
 
 class ParentescoEnum(str, enum.Enum):
     conyuge = "Cónyuge"
@@ -218,16 +239,41 @@ class DatosLaborales(Base):
     tipo_personal       = Column(Enum(TipoPersonalEnum, name="tipo_personal_tipo",
                                 values_callable=enum_values(TipoPersonalEnum)),
                                 nullable=False)
-    regimen_276         = Column(Enum(Regimen276Enum, name="regimen_276_tipo",
-                                values_callable=enum_values(Regimen276Enum)))
-    regimen_1057        = Column(Enum(Regimen1057Enum, name="regimen_1057_tipo",
-                                values_callable=enum_values(Regimen1057Enum)))
+
+    # ── Régimen reestructurado ─────────────────────────────
+    categoria_regimen   = Column(Enum(CategoriaRegimenEnum,
+                                name="categoria_regimen_tipo",
+                                values_callable=enum_values(CategoriaRegimenEnum)))
+    regimen_dl276       = Column(Enum(RegimenDL276Enum,
+                                name="regimen_dl276_tipo",
+                                values_callable=enum_values(RegimenDL276Enum)))
+    regimen_cas         = Column(Enum(RegimenCASEnum,
+                                name="regimen_cas_tipo",
+                                values_callable=enum_values(RegimenCASEnum)))
+    regimen_ordinario   = Column(Enum(RegimenOrdinarioEnum,
+                                name="regimen_ordinario_tipo",
+                                values_callable=enum_values(RegimenOrdinarioEnum)))
+    regimen_contratado  = Column(Enum(RegimenContratadoEnum,
+                                name="regimen_contratado_tipo",
+                                values_callable=enum_values(RegimenContratadoEnum)))
     regimen_otros       = Column(String(100))
-    nivel_remunerativo  = Column(Enum(NivelRemunerativoEnum, name="nivel_remunerativo_tipo",
+
+    # ── Nivel y dedicación ─────────────────────────────────
+    nivel_remunerativo  = Column(Enum(NivelRemunerativoEnum,
+                                name="nivel_remunerativo_tipo",
                                 values_callable=enum_values(NivelRemunerativoEnum)))
-    dedicacion          = Column(Enum(DedicacionEnum, name="dedicacion_tipo",
+    dedicacion          = Column(Enum(DedicacionEnum,
+                                name="dedicacion_tipo",
                                 values_callable=enum_values(DedicacionEnum)))
     horas_semanales     = Column(SmallInteger)
+
+    # ── RENACYT ────────────────────────────────────────────
+    es_renacyt          = Column(Boolean, default=False)
+    renacyt_codigo      = Column(String(30))
+    renacyt_nivel       = Column(Enum(NivelRenacytEnum,
+                                name="nivel_renacyt_tipo",
+                                values_callable=enum_values(NivelRenacytEnum)))
+    renacyt_activo      = Column(Boolean, default=True)
 
     creado_en           = Column(DateTime(timezone=True), server_default=func.now())
     actualizado_en      = Column(DateTime(timezone=True), server_default=func.now(),

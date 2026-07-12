@@ -7,9 +7,10 @@ from app.models.personal import (
     SexoEnum, EstadoCivilEnum, TipoViviendaEnum,
     SistemaPensionEnum, AfpEnum, RamaMilitarEnum,
     CondicionEnum, TipoPersonalEnum,
-    Regimen276Enum, Regimen1057Enum,
+    CategoriaRegimenEnum, RegimenDL276Enum, RegimenCASEnum,
+    RegimenOrdinarioEnum, RegimenContratadoEnum,
     NivelRemunerativoEnum, DedicacionEnum,
-    ParentescoEnum,
+    ParentescoEnum, NivelRenacytEnum,
 )
 
 
@@ -214,18 +215,31 @@ class PersonalResponse(PersonalBase):
 # ── Schema: DatosLaborales ─────────────────────────────────
 
 class DatosLaboralesBase(BaseModel):
-    dependencia:        str
-    cargo:              str
-    fecha_ingreso:      date
-    email_institucional: EmailStr
-    condicion:          CondicionEnum
-    tipo_personal:      TipoPersonalEnum
-    regimen_276:        Optional[Regimen276Enum] = None
-    regimen_1057:       Optional[Regimen1057Enum] = None
-    regimen_otros:      Optional[str] = None
-    nivel_remunerativo: Optional[NivelRemunerativoEnum] = None
-    dedicacion:         Optional[DedicacionEnum] = None
-    horas_semanales:    Optional[int] = None
+    dependencia:          str
+    cargo:                str
+    fecha_ingreso:        date
+    email_institucional:  EmailStr
+    condicion:            CondicionEnum
+    tipo_personal:        TipoPersonalEnum
+
+    # ── Régimen reestructurado ─────────────────────────────
+    categoria_regimen:    Optional[CategoriaRegimenEnum]   = None
+    regimen_dl276:        Optional[RegimenDL276Enum]       = None
+    regimen_cas:          Optional[RegimenCASEnum]         = None
+    regimen_ordinario:    Optional[RegimenOrdinarioEnum]   = None
+    regimen_contratado:   Optional[RegimenContratadoEnum]  = None
+    regimen_otros:        Optional[str]                    = None
+
+    # ── Nivel y dedicación ─────────────────────────────────
+    nivel_remunerativo:   Optional[NivelRemunerativoEnum]  = None
+    dedicacion:           Optional[DedicacionEnum]         = None
+    horas_semanales:      Optional[int]                    = None
+
+    # ── RENACYT ────────────────────────────────────────────
+    es_renacyt:           bool                             = False
+    renacyt_codigo:       Optional[str]                    = None
+    renacyt_nivel:        Optional[NivelRenacytEnum]       = None
+    renacyt_activo:       bool                             = True
 
     @field_validator("email_institucional")
     @classmethod
@@ -237,19 +251,36 @@ class DatosLaboralesBase(BaseModel):
         return v
 
     @model_validator(mode="after")
-    def validar_un_solo_regimen(self):
-        if self.regimen_276 and self.regimen_1057:
+    def validar_un_subregimen(self):
+        activos = sum([
+            self.regimen_dl276      is not None,
+            self.regimen_cas        is not None,
+            self.regimen_ordinario  is not None,
+            self.regimen_contratado is not None,
+        ])
+        if activos > 1:
             raise ValueError(
-                "Solo puede aplicar un régimen laboral: DL 276 o DL 1057, no ambos"
+                "Solo puede tener un sub-régimen activo a la vez"
             )
         return self
 
     @model_validator(mode="after")
-    def validar_horas_si_tp(self):
+    def validar_horas(self):
         if self.dedicacion == DedicacionEnum.horas and not self.horas_semanales:
             raise ValueError(
                 "Debe especificar las horas semanales cuando la dedicación es por Horas"
             )
+        return self
+
+    @model_validator(mode="after")
+    def validar_renacyt(self):
+        if self.es_renacyt:
+            if self.tipo_personal != TipoPersonalEnum.docente:
+                raise ValueError("RENACYT solo aplica a personal docente")
+            if not self.renacyt_codigo or not self.renacyt_nivel:
+                raise ValueError(
+                    "Debe ingresar código y nivel RENACYT si es investigador"
+                )
         return self
 
 
@@ -257,12 +288,12 @@ class DatosLaboralesCreate(DatosLaboralesBase):
     pass
 
 class DatosLaboralesUpdate(DatosLaboralesBase):
-    dependencia:        Optional[str] = None
-    cargo:              Optional[str] = None
-    fecha_ingreso:      Optional[date] = None
-    email_institucional: Optional[EmailStr] = None
-    condicion:          Optional[CondicionEnum] = None
-    tipo_personal:      Optional[TipoPersonalEnum] = None
+    dependencia:         Optional[str]            = None
+    cargo:               Optional[str]            = None
+    fecha_ingreso:       Optional[date]           = None
+    email_institucional: Optional[EmailStr]       = None
+    condicion:           Optional[CondicionEnum]  = None
+    tipo_personal:       Optional[TipoPersonalEnum] = None
 
 class DatosLaboralesResponse(DatosLaboralesBase):
     id:             int
