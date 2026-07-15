@@ -5,11 +5,12 @@ from contextlib import asynccontextmanager
 
 from app.config import settings
 from app.database import engine, Base
-from app.routers import personal, fotos
+from app.routers import personal, fotos, auth, admin, solicitudes
+from app.models import solicitudes as solicitudes_models  # noqa: F401
 
 # ── Importar todos los modelos para que Base los registre ──
-from app.models import personal as personal_models      # noqa: F401
-from app.models import academico as academico_models    # noqa: F401
+from app.models import personal as personal_models  # noqa: F401
+from app.models import academico as academico_models  # noqa: F401
 
 
 # ── Ciclo de vida de la aplicación ─────────────────────────
@@ -36,9 +37,9 @@ async def lifespan(app: FastAPI):
 
 # ── Instancia principal de FastAPI ──────────────────────────
 app = FastAPI(
-    title       = settings.app_name,
-    version     = settings.app_version,
-    description = """
+    title=settings.app_name,
+    version=settings.app_version,
+    description="""
 ## Ficha Digital de Registro de Personal — UNAMBA 2025
 
 API REST para el registro y gestión de datos del personal
@@ -47,9 +48,9 @@ Bastidas de Apurímac (UNAMBA).
 
 **Oficina de Recursos Humanos — Sub Oficina de Escalafón**
     """,
-    docs_url    = "/docs",      # Swagger UI
-    redoc_url   = "/redoc",     # ReDoc
-    lifespan    = lifespan,
+    docs_url="/docs",  # Swagger UI
+    redoc_url="/redoc",  # ReDoc
+    lifespan=lifespan,
 )
 
 
@@ -57,16 +58,20 @@ Bastidas de Apurímac (UNAMBA).
 # Permite que el frontend React en Vercel consuma la API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins     = settings.allowed_origins,
-    allow_credentials = True,
-    allow_methods     = ["GET", "POST", "PUT", "DELETE"],
-    allow_headers     = ["*"],
+    allow_origins=settings.allowed_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
 )
 
 
 # ── Registro de routers ─────────────────────────────────────
 app.include_router(personal.router)
 app.include_router(fotos.router)
+app.include_router(auth.router)
+app.include_router(admin.router)
+app.include_router(solicitudes.router_publico)
+app.include_router(solicitudes.router_admin)
 
 
 # ── Endpoint raíz ───────────────────────────────────────────
@@ -74,9 +79,9 @@ app.include_router(fotos.router)
 async def raiz():
     return {
         "aplicacion": settings.app_name,
-        "version"   : settings.app_version,
-        "estado"    : "en línea",
-        "docs"      : "/docs",
+        "version": settings.app_version,
+        "estado": "en línea",
+        "docs": "/docs",
     }
 
 

@@ -1,6 +1,3 @@
-# Lee las variables del archivo .env y las expone
-# como un objeto tipado accesible en toda la aplicación
-
 from pydantic_settings import BaseSettings
 from typing import List
 
@@ -18,6 +15,12 @@ class Settings(BaseSettings):
     app_name: str = "Ficha Digital UNAMBA 2025"
     app_version: str = "1.0.0"
     debug: bool = True
+
+    # Admin — credenciales y JWT
+    admin_usuario: str
+    admin_contrasena: str
+    admin_secret_key: str
+    admin_token_hours: int = 8
 
     # CORS — acepta formato JSON ["url1","url2"] desde el .env
     allowed_origins: List[str] = [
