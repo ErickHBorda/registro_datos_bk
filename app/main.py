@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 
 from app.config import settings
 from app.database import engine, Base
-from app.routers import personal, fotos, auth, admin, solicitudes
+from app.routers import personal, fotos, auth, admin, solicitudes, exportar
 from app.models import solicitudes as solicitudes_models  # noqa: F401
 
 # ── Importar todos los modelos para que Base los registre ──
@@ -72,6 +72,7 @@ app.include_router(auth.router)
 app.include_router(admin.router)
 app.include_router(solicitudes.router_publico)
 app.include_router(solicitudes.router_admin)
+app.include_router(exportar.router)
 
 
 # ── Endpoint raíz ───────────────────────────────────────────
